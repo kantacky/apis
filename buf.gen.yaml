@@ -1,0 +1,22 @@
+version: v1
+managed:
+  enabled: true
+  go_package_prefix:
+    default: github.com/kantacky/apis-go
+plugins:
+  - plugin: buf.build/protocolbuffers/go
+    out: ../apis-go
+    opt: paths=source_relative
+  - plugin: buf.build/connectrpc/go
+    out: ../apis-go
+    opt: paths=source_relative
+
+  - plugin: buf.build/connectrpc/swift
+    opt:
+      - Visibility=Public
+      - GenerateAsyncMethods=true
+    out: ../apis-swift/Sources/KantackyAPIs
+  - plugin: buf.build/apple/swift
+    opt:
+      - Visibility=Public
+    out: ../apis-swift/Sources/KantackyAPIs
