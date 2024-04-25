@@ -1,0 +1,91 @@
+name: 'Release'
+description: ''
+
+inputs:
+  tag_name:
+    description: 'Tag Name'
+    required: true
+  deploy_key_apis_swift:
+    description: 'Deploy Key for apis-swift'
+    required: true
+  deploy_key_apis_kotlin:
+    description: 'Deploy Key for apis-kotlin'
+    required: true
+  deploy_key_apis_go:
+    description: 'Deploy Key for apis-go'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 'Setup Git'
+      shell: bash
+      run: |
+        git config --global user.email "ci@bulo.com"
+        git config --global user.name "GitHub Actions"
+    - name: 'Setup GitHub SSH'
+      shell: bash
+      run: |
+        mkdir -p ~/.ssh
+        touch ~/.ssh/config
+        echo "Host github_apis_swift" > ~/.ssh/config
+        echo "  HostName github.com" >> ~/.ssh/config
+        echo "  User git" >> ~/.ssh/config
+        echo "  IdentityFile ~/.ssh/id_ed25519_apis_swift" >> ~/.ssh/config
+        echo "  IdentitiesOnly yes" >> ~/.ssh/config
+        echo "Host github_apis_kotlin" >> ~/.ssh/config
+        echo "  HostName github.com" >> ~/.ssh/config
+        echo "  User git" >> ~/.ssh/config
+        echo "  IdentityFile ~/.ssh/id_ed25519_apis_kotlin" >> ~/.ssh/config
+        echo "  IdentitiesOnly yes" >> ~/.ssh/config
+        echo "Host github_apis_go" >> ~/.ssh/config
+        echo "  HostName github.com" >> ~/.ssh/config
+        echo "  User git" >> ~/.ssh/config
+        echo "  IdentityFile ~/.ssh/id_ed25519_apis_go" >> ~/.ssh/config
+        echo "  IdentitiesOnly yes" >> ~/.ssh/config
+        echo "${{ inputs.deploy_key_apis_swift }}" > ~/.ssh/id_ed25519_apis_swift
+        echo "${{ inputs.deploy_key_apis_kotlin }}" > ~/.ssh/id_ed25519_apis_kotlin
+        echo "${{ inputs.deploy_key_apis_go }}" > ~/.ssh/id_ed25519_apis_go
+        chmod 400 ~/.ssh/id_ed25519_*
+    - name: 'Clone Repositories'
+      working-directory: ../
+      shell: bash
+      run: |
+        git clone git@github_apis_swift:kantacky/apis-swift.git
+        git clone git@github_apis_go:kantacky/apis-go.git
+    - name: 'Setup Buf'
+      uses: bufbuild/buf-setup-action@v1
+    - name: 'Lint'
+      shell: bash
+      run: buf lint ./proto
+    - name: 'Generate'
+      shell: bash
+      run: buf generate ./proto
+    - name: 'Commit and Push apis-swift'
+      working-directory: ../apis-swift
+      shell: bash
+      continue-on-error: true
+      run: |
+        git add .
+        git commit -m "${{ inputs.tag_name }}"
+        git push
+    - name: 'Tag and Push apis-swift'
+      working-directory: ../apis-swift
+      shell: bash
+      run: |
+        git tag -a ${{ inputs.tag_name }} -m "${{ inputs.tag_name }}"
+        git push origin ${{ inputs.tag_name }}
+    - name: 'Commit and Push apis-go'
+      working-directory: ../apis-go
+      shell: bash
+      continue-on-error: true
+      run: |
+        git add .
+        git commit -m "${{ inputs.tag_name }}"
+        git push
+    - name: 'Tag and Push apis-go'
+      working-directory: ../apis-go
+      shell: bash
+      run: |
+        git tag -a ${{ inputs.tag_name }} -m "${{ inputs.tag_name }}"
+        git push origin ${{ inputs.tag_name }}

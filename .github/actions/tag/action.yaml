@@ -1,0 +1,23 @@
+name: 'Tag'
+description: ''
+
+inputs:
+  tag_name:
+    description: 'Tag Name'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 'Checkout'
+      uses: actions/checkout@v4
+    - name: 'Setup Git'
+      shell: bash
+      run: |
+        git config --global user.email "ci@bulo.com"
+        git config --global user.name "GtiHub Actions"
+    - name: 'Tag'
+      shell: bash
+      run: |
+        git tag -a ${{ inputs.tag_name }} -m "${{ inputs.tag_name }}"
+        git push origin ${{ inputs.tag_name }}

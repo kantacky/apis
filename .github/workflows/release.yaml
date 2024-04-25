@@ -1,0 +1,40 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_major:
+        type: number
+        required: true
+        description: 'Major Version'
+      version_minor:
+        type: number
+        required: true
+        description: 'Minor Version'
+      version_patch:
+        type: number
+        required: true
+        description: 'Patch Version'
+
+env:
+  TAG_NAME: 'v${{ github.event.inputs.version_major }}.${{ github.event.inputs.version_minor }}.${{ github.event.inputs.version_patch }}'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v4
+      - name: 'Tag'
+        uses: ./.github/actions/tag
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+      - name: 'Release'
+        uses: ./.github/actions/release
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          deploy_key_apis_swift: ${{ secrets.DEPLOY_KEY_APIS_SWIFT }}
+          deploy_key_apis_kotlin: ${{ secrets.DEPLOY_KEY_APIS_KOTLIN }}
+          deploy_key_apis_go: ${{ secrets.DEPLOY_KEY_APIS_GO }}
