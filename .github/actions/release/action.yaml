@@ -21,7 +21,7 @@ runs:
     - name: 'Setup Git'
       shell: bash
       run: |
-        git config --global user.email "ci@bulo.com"
+        git config --global user.email "ci@kantacky.com"
         git config --global user.name "GitHub Actions"
     - name: 'Setup GitHub SSH'
       shell: bash

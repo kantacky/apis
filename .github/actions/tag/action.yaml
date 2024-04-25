@@ -14,10 +14,11 @@ runs:
     - name: 'Setup Git'
       shell: bash
       run: |
-        git config --global user.email "ci@bulo.com"
+        git config --global user.email "ci@kantacky.com"
         git config --global user.name "GtiHub Actions"
     - name: 'Tag'
       shell: bash
+      continue-on-error: true
       run: |
         git tag -a ${{ inputs.tag_name }} -m "${{ inputs.tag_name }}"
         git push origin ${{ inputs.tag_name }}
