@@ -3,22 +3,39 @@ syntax = "proto3";
 package research.gtfs_realtime.v1;
 
 import "kantacky/foundation/v1/coordinate.proto";
+import "kantacky/foundation/v1/result.proto";
 import "google/protobuf/timestamp.proto";
 
 service GTFSRealtimeService {
+    // List positions of all vehicles of the agency
+    rpc ListVehiclesPositions(ListVehiclesPositionsRequest) returns (ListVehiclesPositionsResponse) {}
+
+    // List positions of a specific vehicle of the agency
     rpc ListVehiclePositions(ListVehiclePositionsRequest) returns (ListVehiclePositionsResponse) {}
 }
 
-message ListVehiclePositionsRequest {
+message ListVehiclesPositionsRequest {
     // Agency ID (UUID)
     string agency_id = 1;
     google.protobuf.Timestamp timestamp = 2;
     int64 buffer_seconds = 3;
 }
 
-message ListVehiclePositionsResponse {
+message ListVehiclesPositionsResponse {
+    kantacky.foundation.v1.Result result = 1;
+    repeated VehiclePosition vehicle_positions = 2;
+}
+
+message ListVehiclePositionsRequest {
     // Agency ID (UUID)
     string agency_id = 1;
+    string vehicle_id = 2;
+    google.protobuf.Timestamp timestamp_from = 3;
+    google.protobuf.Timestamp timestamp_to = 4;
+}
+
+message ListVehiclePositionsResponse {
+    kantacky.foundation.v1.Result result = 1;
     repeated VehiclePosition vehicle_positions = 2;
 }
 
